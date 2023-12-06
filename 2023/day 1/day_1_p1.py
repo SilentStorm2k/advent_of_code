@@ -15,8 +15,8 @@ def calibration_sum(calibration_text):
         sum = sum + int(first_num)*10 + int(last_num)
     return sum
 
-ex_file = open("advent_of_code/2023/day1/puzzle_input/day_1_p1.txt", 'r')
-# ex_file = open("advent_of_code/2023/day1/puzzle_input/day_1_p1_example.txt", 'r')
+ex_file = open("2023/day 1/puzzle_input/day_1_p1.txt", 'r')
+# ex_file = open("2023/day 1/puzzle_input/day_1_p1_example.txt", 'r')
 text = ex_file.read()
 # print(text)
 print(f"Answer is : {calibration_sum(text)}")

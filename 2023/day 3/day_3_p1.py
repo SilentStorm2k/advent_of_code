@@ -59,7 +59,7 @@ def func(input):
 
 
 # when called from ~/Code/repos/advent_of_code$
-ex_file = open("2023/day3/puzzle_input/day_3.txt", 'r')
-# ex_file = open("2023/day3/puzzle_input/day_3_p1_example.txt", 'r')
+ex_file = open("2023/day 3/puzzle_input/day_3.txt", 'r')
+# ex_file = open("2023/day 3/puzzle_input/day_3_p1_example.txt", 'r')
 input = ex_file.read()
 print(f"Answer is : {func(input)}")

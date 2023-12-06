@@ -34,8 +34,8 @@ def isGamePossible(game, red, green, blue):
     return id
 
 
-ex_file = open("advent_of_code/2023/day2/puzzle_input/day_2.txt", 'r')
-# ex_file = open("advent_of_code/2023/day2/puzzle_input/day_2_example.txt", 'r')
+ex_file = open("2023/day 2/puzzle_input/day_2.txt", 'r')
+# ex_file = open("2023/day 2/puzzle_input/day_2_example.txt", 'r')
 input = ex_file.read()
 # print(input)
 print(f"Answer is : {sum_id(input, 12, 13, 14)}")
