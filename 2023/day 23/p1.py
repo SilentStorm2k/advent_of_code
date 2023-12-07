@@ -1,4 +1,3 @@
-import os
 import time
 
 def execute(func):
@@ -15,5 +14,5 @@ def func(input):
 
 # when called from ~/Code/repos/advent_of_code$
 ex = 1
-input = open("2023/day 8/puzzle_input/day_8_example.txt" if ex else "2023/day 8/puzzle_input/day_8.txt", 'r').read()
+input = open("2023/day 23/puzzle_input/example.txt" if ex else "2023/day 23/puzzle_input/input.txt", 'r').read()
 func(input)

@@ -9,6 +9,7 @@ def execute(func):
         print(f'Executed in : {round(t2-t1, 5)}')
     return wrapper 
 
+@execute
 def func(input):
     return 
 
