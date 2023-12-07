@@ -1,6 +1,7 @@
 import time
 import string_utils
 import itertools
+from functools import cmp_to_key
 
 def func(input):
     input = input.split('\n')
@@ -13,35 +14,13 @@ def func(input):
         type.update({hand: get_type(hand)})
     
     # splitting hand values according to its type (for sorting later)
-    s1, s2, s3, s4, s5, s6, s7 = {}, {}, {}, {}, {}, {}, {}
-    for k in type:
-        if type[k] == 1:
-            s1.update({k: 1})
-        if type[k] == 2:
-            s2.update({k: 2})
-        if type[k] == 3:
-            s3.update({k: 3})
-        if type[k] == 4:
-            s4.update({k: 4})
-        if type[k] == 5:
-            s5.update({k: 5})
-        if type[k] == 6:
-            s6.update({k: 6})
-        if type[k] == 7:
-            s7.update({k: 7})
+    s = {i: {k: type[k] for k in type if type[k] == i} for i in range(1, 8)}
 
     # sorting each hand value in each type according to card values 
-    from functools import cmp_to_key
-    s_s1 = sorted(s1, key=cmp_to_key(comp))
-    s_s2 = sorted(s2, key=cmp_to_key(comp))
-    s_s3 = sorted(s3, key=cmp_to_key(comp))
-    s_s4 = sorted(s4, key=cmp_to_key(comp))
-    s_s5 = sorted(s5, key=cmp_to_key(comp))
-    s_s6 = sorted(s6, key=cmp_to_key(comp))
-    s_s7 = sorted(s7, key=cmp_to_key(comp))
-    
+    s_sorted = [sorted(s[i], key=cmp_to_key(comp)) for i in range(1, 8)]
+
     # combining all hands for iteration
-    s_rank = list(itertools.chain(s_s1,s_s2,s_s3,s_s4,s_s5,s_s6,s_s7))
+    s_rank = list(itertools.chain.from_iterable(s_sorted))
     
     winnings = 0
     # calculating winnings for each hand (its rank  x its  bid)
