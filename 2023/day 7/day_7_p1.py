@@ -3,6 +3,15 @@ import string_utils
 import itertools
 from functools import cmp_to_key
 
+def execute(func):
+    def wrapper(*args):   
+        t1 = time.time()
+        print(f'Answer is : {func(*args)}')
+        t2 = time.time()
+        print(f'Executed in : {round(t2-t1, 5)}')
+    return wrapper
+
+@execute
 def func(input):
     input = input.split('\n')
     # corresponding bid for hand
@@ -70,11 +79,6 @@ def get_type(hand):
      
 
 # when called from ~/Code/repos/advent_of_code$
-ex_file = open("2023/day 7/puzzle_input/day_7.txt", 'r')
-# ex_file = open("2023/day 7/puzzle_input/day_7_example.txt", 'r')
-input = ex_file.read()
-# print(text)
-t0 = time.time()
-print(f"Answer is : {func(input)}")
-t1 = time.time()
-print(f"Executed in {round(t1-t0, 5)}s")
+ex = 0
+input = open("2023/day 7/puzzle_input/day_7_example.txt" if ex else "2023/day 7/puzzle_input/day_7.txt", 'r').read()
+func(input)
