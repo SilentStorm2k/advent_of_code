@@ -6,6 +6,7 @@ def execute(func):
         print(f'Answer for {func.__name__} : {func(*args)}')
         t2 = time.time()
         print(f'Executed in : {round(t2-t1, 5)}')
+    wrapper.__original = func # if need to reuse p1 w/o decorator use : p1.__original(input)
     return wrapper 
 
 @execute
