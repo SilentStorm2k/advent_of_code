@@ -60,7 +60,6 @@ def p2(input):
             else:
                 s += '0'
         # print(s)
-    op = False
 
     return area
 
@@ -90,7 +89,7 @@ def get_next(coords, start, visited):
         return None
     
 # when called from ~/Code/repos/advent_of_code$
-ex = 1
+ex = 0
 input = open("2023/day 10/puzzle_input/example4.txt" if ex else "2023/day 10/puzzle_input/input.txt", 'r').read()
 p1(input)
 p2(input)
