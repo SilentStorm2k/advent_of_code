@@ -27,7 +27,8 @@ def p1(input, part2 = 0):
 @execute
 def p2(input):
     return p1.__original(input, 1)
-    
+
+# returns true if string values are off by one or same 
 def isSmudge(string1, string2):
     count_diffs = 0
     for a, b in zip(string1, string2):
@@ -36,6 +37,7 @@ def isSmudge(string1, string2):
             count_diffs += 1
     return True
 
+# returns index value of mirror location
 def getMirror(cols, part2):
     for i in range(1, len(cols)):
             smudge = 0
