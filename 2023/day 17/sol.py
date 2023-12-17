@@ -21,23 +21,30 @@ def p1(input, mn = 0, mx = 3):
     seen = set()
     pq = [(0, 0, 0, 0, 1, 0)]
     minHeatLoss = 0
+    # implementation of dijkstra algorithm
     while pq:
+        # using heap (priority queue) to store state (heat loss, x, y coord, dx, dy, and n = number of times we've gone straight)
         hl, r, c, dr, dc, n = heappop(pq)
+
+        # heat loss always minimum value since its a pq
         if r==R and c==C and n >= mn:
             minHeatLoss = hl
             break
 
+        # having seen set to eliminate loops (not including heat loss as we do not want to add additional heat loss if cycle)
         if (r, c, dr, dc, n) in seen:
             continue
 
         seen.add((r, c, dr, dc, n))
 
+        # if going in straight line less than the max allowed straight line dist (mx) add to heap
         if n < mx:
             nr = r+dr
             nc = c+dc
             if 0<=nr<=R and 0<=nc<=C:
                 heappush(pq, (hl+rows[nr][nc], nr, nc, dr, dc, n+1))
         
+        # changing direction under the valid conditions (not turning back, not going straight, and > min allowed straight distance crossed)
         for ndr, ndc in [(0,1), (1,0), (-1,0), (0,-1)]:
             if (ndr, ndc) != (-dr, -dc) and (ndr, ndc) != (dr, dc) and n >= mn:
                 nr = r+ndr
