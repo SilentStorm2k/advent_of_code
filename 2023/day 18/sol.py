@@ -45,8 +45,11 @@ def p1(input, part1 = True):
         area += (-x1*y2 + x2*y1)/2 
         x1, y1 = x2, y2
 
-    # picks theorem
-    # inner pts + numof outer points/2 (perimeter here) + 1
+    # picks theorem -> A = i + b/2 -1
+    # inner pts + boundary pts/2 (perimeter here) - 1
+    # rearranging we get -> i = A - b/2 + 1
+    # we need to find answer which is inner points + boundary points area = i + b
+    # then ans = A - b/2 + 1 + b -> A + b/2 + 1
     return int(abs(area) + (sum(steps)/2) + 1)
 
 @execute
