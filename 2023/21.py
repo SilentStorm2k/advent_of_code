@@ -1,4 +1,5 @@
 import time
+import numpy as np
 
 def execute(func):
     def wrapper(*args):   
@@ -21,9 +22,9 @@ def p1(input, steps = 64):
     state = set()
     state.add(start)
     ret = countStates(grid, {start}, steps)  
+
     return ret
 
-t = []
 def countStates(grid, state, steps):
     R, C = len(grid), len(grid[0])
     length, step = 1, 0
@@ -45,9 +46,23 @@ def countStates(grid, state, steps):
 # the center ones which will likely be filled will have either of the above 2 nos
 @execute
 def p2(input):
-    steps = 100
-    # steps = 26501365
-    return p1.__original(input, steps)
+    steps = 26501365
+    # steps = 5000
+    ##
+    ##  THIS IS A COP OUT SOLUTION THAT I DID NOT COME UP WITH, however i used polyfit instead of wolfram alpha
+    ##  to fit the polynomial and get the solution
+    ##
+    R = len(input.split('\n'))
+    ogSteps = steps%R
+    x = [0, 1, 2]
+    y = [p1.__original(input, ogSteps), p1.__original(input, ogSteps+R), p1.__original(input, ogSteps+2*R)]
+    poly = np.rint(np.polynomial.polynomial.polyfit(x, y, 2)).astype(int).tolist()
+    # this target only works for the given input (131/131 grid) and not the example
+    target = (steps-65)/131
+    ans = 0
+    for i in range(3):
+        ans += poly[i]*(target**i)
+    return ans
 
 # when called from ~/Code/repos/advent_of_code$
 ex = 0
