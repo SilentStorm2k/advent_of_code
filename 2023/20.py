@@ -14,89 +14,126 @@ def execute(func):
 @execute
 def p1(input):
     input = input.split('\n')
-    nameType, recievesFrom, destinations = {}, {}, {}
+    modType = {}
+    modDest = {}
     for line in input:
-        cur, dest = line.split('->')
-        if cur[0] == 'b':
-            # broadcaster
-            nameType.update({cur[0:-1]: (cur[0:-1], 0)})
-        else:
-            nameType.update({cur[1:-1]: (cur[0], 0)})
-        if cur[0] == '&':
-            # conjuction
-            recievesFrom.update({cur[1:-1] : {}})
-        destinations.update({cur[1:-1] if cur[0] != 'b' else cur[0:-1]: [ch.strip() for ch in dest.strip().split(',')]})
-    
-    for conj in recievesFrom.keys():
-        for dest in destinations.keys():
-            if conj in destinations.get(dest):
-                recievers = recievesFrom.get(conj)
-                print(recievers)
-                recievers.update({dest:0})
-                recievesFrom.update({conj: recievers})
-    print(f'{nameType}, {recievesFrom}, {destinations}')  
-
-    pulse = 0
-    seen = []
-    current = 'broadcaster'  
-    state = ()
-    queue = deque()
-    queue.append(current)
-    while queue:
-        print(queue)
-        current = queue.popleft()
-        out = [nameType.get(i)[1] if nameType.get(i) else 0 for i in destinations.get(current)]
-        state = (current, out)
-        if state in seen:
-            print(seen)
-            break
-        
-        seen.append(state)
-        
-        for dest in destinations.get(current):
-            if not nameType.get(dest):
+        mod, dest = line.strip().split('->')
+        name, t = mod[1:].strip(), mod[0]
+        if t == 'b':
+            name, t = mod.strip(), mod.strip()
+        dest = [i.strip() for i in dest.split(',')]
+        modType.update({name: t})
+        modDest.update({name: dest})
+    ffState = {mod: 0 for mod in modType.keys() if modType.get(mod) == '%'}
+    conjPre = {mod: {} for mod in modType.keys() if modType.get(mod) == '&'}
+    for mod in modDest.keys():
+        for dest in modDest.get(mod):
+            if dest in conjPre.keys():
+                conjPre[dest][mod] = 0
+    hiP, lowP = 0, 0
+    buttonPresses = 1000
+    while buttonPresses > 0:
+        pulses = deque()
+        pulses.append((0, 'broadcaster', 'broadcaster'))
+        while pulses:
+            pulseVal, mod, sender = pulses.popleft()
+            # print(f'{sender} -{"high" if pulseVal else "low"}-> {mod}')
+            hiP += 1 if pulseVal else 0
+            lowP += 1 if not pulseVal else 0
+            if mod not in modType.keys():
                 continue
-            modType, onOrOff = nameType.get(dest)
-            retPulse = -1
-            if modType == '%':
-                if pulse == 0:
-                    nameType.update({dest:(modType, not onOrOff)})
-                    retPulse = 1 if onOrOff else 0
-            if modType == '&':
-                new = recievesFrom.get(dest)
-                new.update({current:pulse})
-                recievesFrom.update({dest:new})
-                if all(recievesFrom.values()):
-                    retPulse = 0
-                else:
-                    retPulse = 1
-            if modType == 'b':
-                retPulse = pulse
-            queue.append(dest)
-            
-        # got to write retpulse properly here
+            if mod == 'broadcaster':
+                for dest in modDest[mod]:
+                    pulses.append((pulseVal, dest, mod))
+            if modType[mod] == '%':
+                if pulseVal == 0:
+                    retP = 0 if ffState[mod] else 1
+                    ffState.update({mod: retP})
+                    for dest in modDest[mod]:
+                        pulses.append((retP, dest, mod))
+            if modType[mod] == '&':
+                conjPre[mod][sender] = pulseVal
+                retP = 1
+                if all(conjPre[mod].values()):
+                    retP = 0
+                for dest in modDest[mod]:
+                    pulses.append((retP, dest, mod))
+        buttonPresses -= 1
 
-
-
-# Flip-flop modules (prefix %) are either on or off; they are initially off. If a flip-flop module receives a high pulse, 
-# it is ignored and nothing happens. However, if a flip-flop module receives a low pulse, it flips between on and off. 
-# If it was off, it turns on and sends a high pulse. If it was on, it turns off and sends a low pulse.
-
-# Conjunction modules (prefix &) remember the type of the most recent pulse received from each of their connected input modules; 
-# they initially default to remembering a low pulse for each input. When a pulse is received, the conjunction module first updates 
-# its memory for that input. Then, if it remembers high pulses for all inputs, it sends a low pulse; otherwise, it sends a high pulse.
-
-# There is a single broadcast module (named broadcaster). When it receives a pulse, it sends the same pulse to all of its destination modules.
-
-    print(state)
-    return 
+    # print(f'\nHigh = {hiP}, low = {lowP}')
+    return hiP * lowP
 
 @execute
 def p2(input):
-    return
+    input = input.split('\n')
+    modType = {}
+    modDest = {}
+    for line in input:
+        mod, dest = line.strip().split('->')
+        name, t = mod[1:].strip(), mod[0]
+        if t == 'b':
+            name, t = mod.strip(), mod.strip()
+        dest = [i.strip() for i in dest.split(',')]
+        modType.update({name: t})
+        modDest.update({name: dest})
+    ffState = {mod: 0 for mod in modType.keys() if modType.get(mod) == '%'}
+    conjPre = {mod: {} for mod in modType.keys() if modType.get(mod) == '&'}
+    timeToConj = {mod: {} for mod in modType.keys()}
+    for mod in modDest.keys():
+        for dest in modDest.get(mod):
+            if dest in conjPre.keys():
+                conjPre[dest][mod] = 0
+                timeToConj[dest][mod] = 0 if modType[dest] == '&' else 1
+            
+
+    
+    finalMod = 'rx'
+    finalModDad = 'ns'
+    buttonPresses = 0
+    print(timeToConj)
+    while not all(conjPre['ns'].values()):
+        # break
+        pulses = deque()
+        pulses.append((0, 'broadcaster', 'broadcaster'))
+        while pulses:
+            if buttonPresses % 1000000 == 0:
+                print(buttonPresses)
+                print(timeToConj[finalModDad])
+            pulseVal, mod, sender = pulses.popleft()
+            # print(f'{sender} -{"high" if pulseVal else "low"}-> {mod}')
+            if mod not in modType.keys():
+                continue
+            if mod == 'broadcaster':
+                for dest in modDest[mod]:
+                    pulses.append((pulseVal, dest, mod))
+            if modType[mod] == '%':
+                if pulseVal == 0:
+                    retP = 0 if ffState[mod] else 1
+                    ffState.update({mod: retP})
+                    for dest in modDest[mod]:
+                        pulses.append((retP, dest, mod))
+            if modType[mod] == '&':
+                conjPre[mod][sender] = pulseVal
+                retP = 1
+                if all(conjPre[mod].values()):
+                    retP = 0
+                if all(value > 0 for value in timeToConj[mod].values()) and timeToConj[mod] != {}:
+                    t = buttonPresses
+                    for v in timeToConj[mod].values():
+                        t *= v
+                    for m in timeToConj:
+                        for v in timeToConj[m]:
+                            if v == mod:
+                                timeToConj[m][v] = t
+                    buttonPresses = t 
+                    retP = 0
+                for dest in modDest[mod]:
+                    pulses.append((retP, dest, mod))
+            buttonPresses += 1
+    return buttonPresses
 
 # when called from ~/Code/repos/advent_of_code$
-ex = 1
-input = open("2023/day 20/puzzle_input/example2.txt" if ex else "2023/day 20/puzzle_input/input.txt", 'r').read()
+ex = 0
+input = open("2023/day 20/puzzle_input/example.txt" if ex else "2023/day 20/puzzle_input/input.txt", 'r').read()
 p1(input)
 p2(input)
