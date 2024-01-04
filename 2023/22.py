@@ -82,7 +82,70 @@ def disintegrate(blocks):
 
 @execute
 def p2(input):
-    return
+    input = input.split('\n')
+    ends = deque()
+    for row in input:
+        t, b = row.split('~')
+        t = tuple((int(i) for i in t.split(',')))
+        b = tuple((int(i) for i in b.split(',')))
+        ends.append((t, b))
+    
+    # sorting blocks by z value
+    sorList = sorted(ends, key= lambda e: e[0][2])
+    sor = deque()
+    for ele in sorList:
+        sor.append(ele)
+    fallenBlocks = fall(sor)
+    s = chainReaction(fallenBlocks)
+    return s
+
+def chainReaction(allBlocks):
+    sAbove = {b: [] for b in allBlocks}
+    # iterating over blocks, if there is a block immediately above cur
+    # and it will overlap if fallen, then cur supports it, add above to list of blocks supported by cur (sAbove)
+    for cur in allBlocks:
+        for other in allBlocks:
+            if cur == other:
+                continue
+            if other[0][2] - cur[1][2] == 1: # other is immediately above cur
+                if isCollision(cur, other):
+                    sAbove[cur].append(other)
+
+    ans = 0
+    for block in allBlocks:
+        dis = list(sAbove.get(block))
+        curans = 0
+        visited = {block}
+        while dis:
+            otherBlock = dis.pop()
+            if otherBlock in visited:
+                continue
+            c = False
+            for key in sAbove.keys():
+                if otherBlock in sAbove.get(key) and key not in visited:
+                    c = True
+            if c : continue
+            curans += 1
+            visited.add(otherBlock)
+
+            toAdd = set()
+            for b in sAbove.get(otherBlock):
+                if b not in visited:
+                    toAdd.add(b)
+            toAddFinal = set(toAdd)
+
+            for key in sAbove.keys():
+                for b in toAdd:
+                    if b in sAbove.get(key) and key not in visited and key not in dis:
+                        if b in toAddFinal:
+                            toAddFinal.remove(b)
+                        
+            for b in toAddFinal:
+                dis.append(b)
+
+        ans += curans
+    return ans
+
 
 def main(args=None):
     # when called from ~/Code/repos/advent_of_code$
@@ -92,9 +155,9 @@ def main(args=None):
     p1(example)
     p1(input)
     # EXPECTED ANSWER 463
-    # print(f'\nPart 2:')
-    # p2(example)
-    # p2(input)
+    print(f'\nPart 2:')
+    p2(example)
+    p2(input)
 
 
 if __name__ == '__main__':
