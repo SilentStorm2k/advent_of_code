@@ -1,5 +1,6 @@
 import time
 from collections import deque
+from math import lcm
 
 def execute(func):
     def wrapper(*args):   
@@ -78,29 +79,39 @@ def p2(input):
         modDest.update({name: dest})
     ffState = {mod: 0 for mod in modType.keys() if modType.get(mod) == '%'}
     conjPre = {mod: {} for mod in modType.keys() if modType.get(mod) == '&'}
-    timeToConj = {mod: {} for mod in modType.keys()}
+    timeToConj = {mod: {} for mod in modType.keys() if modType.get(mod) == '&'}
     for mod in modDest.keys():
         for dest in modDest.get(mod):
             if dest in conjPre.keys():
                 conjPre[dest][mod] = 0
-                timeToConj[dest][mod] = 0 if modType[dest] == '&' else 1
-            
+                timeToConj[dest][mod] = 0 
 
-    
+    # using 2 assumptions
+    # 1: only 1 mod connects to 'rx' and its a conjunction (calling it finalModDad)
+    # 2: mods connecting to finalModDad are also conjunctions
+                
     finalMod = 'rx'
-    finalModDad = 'ns'
-    buttonPresses = 0
-    print(timeToConj)
-    while not all(conjPre['ns'].values()):
-        # break
+    finalVals = {}
+    for mod in modType.keys():
+        if finalMod in modDest[mod]:
+            finalModDad = mod       
+    for mod in modType.keys():
+        if finalModDad in modDest[mod]:
+            finalVals[mod] = 0
+
+    hiP, lowP = 0, 0
+    buttonPresses = 1    
+    while lcm(*finalVals.values()) == 0:
         pulses = deque()
         pulses.append((0, 'broadcaster', 'broadcaster'))
         while pulses:
-            if buttonPresses % 1000000 == 0:
-                print(buttonPresses)
-                print(timeToConj[finalModDad])
             pulseVal, mod, sender = pulses.popleft()
+            if mod in finalVals.keys() and pulseVal == 0:
+                finalVals[mod] = buttonPresses
+
             # print(f'{sender} -{"high" if pulseVal else "low"}-> {mod}')
+            hiP += 1 if pulseVal else 0
+            lowP += 1 if not pulseVal else 0
             if mod not in modType.keys():
                 continue
             if mod == 'broadcaster':
@@ -115,25 +126,25 @@ def p2(input):
             if modType[mod] == '&':
                 conjPre[mod][sender] = pulseVal
                 retP = 1
-                if all(conjPre[mod].values()):
-                    retP = 0
-                if all(value > 0 for value in timeToConj[mod].values()) and timeToConj[mod] != {}:
-                    t = buttonPresses
-                    for v in timeToConj[mod].values():
-                        t *= v
-                    for m in timeToConj:
-                        for v in timeToConj[m]:
-                            if v == mod:
-                                timeToConj[m][v] = t
-                    buttonPresses = t 
+                if all(conjPre[mod].values()):  
                     retP = 0
                 for dest in modDest[mod]:
                     pulses.append((retP, dest, mod))
-            buttonPresses += 1
-    return buttonPresses
+        buttonPresses += 1
 
-# when called from ~/Code/repos/advent_of_code$
-ex = 0
-input = open("2023/day 20/puzzle_input/example.txt" if ex else "2023/day 20/puzzle_input/input.txt", 'r').read()
-p1(input)
-p2(input)
+    return lcm(*finalVals.values())
+
+
+
+def main():
+    # when called from ~/Code/repos/advent_of_code$
+    example = open("2023/day 20/puzzle_input/example.txt", 'r').read()
+    input = open("2023/day 20/puzzle_input/input.txt", 'r').read()
+    print(f'\nPart 1:')
+    p1(example)
+    p1(input)
+    print(f'\nPart 2:')
+    # p2(example)
+    p2(input)
+if __name__ == '__main__':
+    main()
