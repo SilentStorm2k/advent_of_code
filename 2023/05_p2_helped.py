@@ -48,10 +48,10 @@ def func(input_data):
     pairs = list(zip(seed[::2], seed[1::2]))
     for st, sz in pairs:
         R = [(st, st+sz)]
-        print(f'Seeds: {R}')
+        # print(f'Seeds: {R}')
         for f in Fs:
             R = f.f2(R)
-            print(R)
+            # print(R)
         P2.append(min(R)[0])
 
     return min(P1), min(P2)
