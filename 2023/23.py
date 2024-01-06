@@ -23,7 +23,7 @@ def p1(input):
     start = (0, 1)
     end = (R, C-1)
 
-    sys.setrecursionlimit(2300)
+    sys.setrecursionlimit(10000)
     longestPath = findPath(grid, start, end, set())
     return longestPath-1
 
@@ -65,20 +65,73 @@ def p2(input):
     for r in rows:
         grid.append(list(r))
     R, C = len(grid)-1, len(grid[0])-1
+    start = (0, 1)
+    end = (R, C-1)
     for r in range(R+1):
         for c in range(C+1):
             if grid[r][c] in slopes.keys():
                 grid[r][c] = '.'
-    s = ''
-    for r in range(R+1):
-        news = "".join(grid[r])
-        s = s+news+ ('\n' if r != R else '')
     
-    return p1.__original(s)
+
+    nodes = [start, end]
+    for r, row in enumerate(grid):
+        for c, tile in enumerate(row):
+            if tile == '#':
+                continue
+            neighbors = 0
+            for nr, nc in [(r,c+1), (r,c-1), (r+1, c), (r-1,c)]:
+                if 0<=nr<=R and 0<=nc<=C and grid[nr][nc] != '#':
+                    neighbors += 1
+                
+            if neighbors >= 3:
+                nodes.append((r, c))
+    
+    graph = {node: {} for node in nodes}
+
+    for sr, sc in nodes:
+        stack = [(sr, sc, 0)]
+        seen = {(sr,sc)}
+        while stack:
+            r, c, dist = stack.pop()
+            if dist != 0 and (r, c) in nodes:
+                graph[(sr, sc)][(r, c)] = dist
+                continue
+
+            for dr, dc in [(0, 1), (0, -1), (-1, 0), (1, 0)]:
+                nr = r+dr
+                nc = c+dc
+                if 0<=nr<=R and 0<=nc<=C and grid[nr][nc] != '#' and (nr, nc) not in seen:
+                    stack.append((nr, nc, dist+1))
+                    seen.add((nr, nc))
+
+    seen = set()
+    def dfs(node):
+        if node == end:
+            return 0
+        m = -float("inf")
+
+        seen.add(node)
+        for nx in graph[node]:
+            if nx not in seen:
+                m = max(m, dfs(nx) + graph[node][nx])
+        seen.remove(node)
+        return m
+
+    return dfs(start)
 
 
-# when called from ~/Code/repos/advent_of_code$
-ex = 0
-input = open("2023/day 23/puzzle_input/example.txt" if ex else "2023/day 23/puzzle_input/input.txt", 'r').read()
-p1(input)
-p2(input)
+        
+
+def main():
+    # when called from ~/Code/repos/advent_of_code$
+    input = open("2023/day 23/puzzle_input/input.txt", 'r').read()
+    example = open("2023/day 23/puzzle_input/example.txt", 'r').read()
+    print("\nPart 1:")
+    p1(example)
+    p1(input)
+    print("\nPart 2:")
+    p2(example)
+    p2(input)
+
+if __name__ == "__main__":
+    main()
