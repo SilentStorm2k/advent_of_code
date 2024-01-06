@@ -83,7 +83,7 @@ def p2(input):
 
     xr, yr, zr, vxr, vyr, vzr = sympy.symbols('xr, yr, zr, vxr, vyr, vzr')
     equations = []
-    for pos in pos_vel:
+    for pos in pos_vel[0:3]:
         sx, sy, sz = pos[0]
         vx, vy, vz = pos[1]
         equations.append((xr-sx)*(vy-vyr) - (yr-sy)*(vx-vxr))
@@ -91,7 +91,6 @@ def p2(input):
         
         answers = [soln for soln in sympy.solve(equations) if all(x%1==0 for x in soln.values())]
 
-    print(len(answers))
     answer = answers[0][xr] + answers[0][yr] + answers[0][zr]
 
     return answer
