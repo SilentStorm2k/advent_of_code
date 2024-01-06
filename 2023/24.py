@@ -95,8 +95,16 @@ def p2(input):
 
     return answer
 
-# when called from ~/Code/repos/advent_of_code$
-ex = 0
-input = open("2023/day 24/puzzle_input/example.txt" if ex else "2023/day 24/puzzle_input/input.txt", 'r').read()
-p1(input)
-p2(input)
+def main():
+    # when called from ~/Code/repos/advent_of_code$
+    example = open("2023/day 24/puzzle_input/example.txt", 'r').read()
+    input = open("2023/day 24/puzzle_input/input.txt", 'r').read()
+    print("\nPart 1:")
+    p1(example)
+    p1(input)
+    print("\nPart 2:")
+    p2(example)
+    p2(input)
+
+if __name__ == "__main__":
+    main()
