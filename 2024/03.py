@@ -1,4 +1,5 @@
 import time
+import re
 from collections import defaultdict, deque
 import heapq
 
@@ -14,64 +15,17 @@ def execute(func):
 
 @execute
 def p1(input):
-    n = len(input)
-    res = 0
-    for i in range(n):
-        if input[i:i+4] == "mul(":
-            num1, num2 = "", ""
-            r = 4
-            pre = -1
-            for j in range(i+4, i+4+r):
-                if j >= n or not input[j].isdigit() or j == i+4+3:
-                    pre = j 
-                    break
-                num1 += input[j]
-            if pre == -1 or pre >= n or input[pre] != ",":
-                continue
-            pre += 1
-            for j in range(pre, pre+r):
-                if j >= n or not input[j].isdigit() or j == pre+3:
-                    pre = j 
-                    break
-                num2 += input[j]
-
-            if pre >= n or input[pre] != ")":
-                continue
-            res += int(num1)*int(num2)
+    matches = re.findall(r"mul\((\d{1,3}),(\d{1,3})\)", input)
+    res = sum([int(a)*int(b) for a, b in matches])
     return res
                  
 @execute
 def p2(input):
-    n = len(input)
-    res = 0
-    enabled = True
-    for i in range(n):
-        if input[i:i+7] == "don't()":
-            enabled = False
-        if input[i:i+4] == "do()":
-            enabled = True 
-
-        if enabled and input[i:i+4] == "mul(":
-            num1, num2 = "", ""
-            r = 4
-            pre = -1
-            for j in range(i+4, i+4+r):
-                if j >= n or not input[j].isdigit() or j == i+4+3:
-                    pre = j 
-                    break
-                num1 += input[j]
-            if pre == -1 or pre >= n or input[pre] != ",":
-                continue
-            pre += 1
-            for j in range(pre, pre+r):
-                if j >= n or not input[j].isdigit() or j == pre+3:
-                    pre = j 
-                    break
-                num2 += input[j]
-
-            if pre >= n or input[pre] != ")":
-                continue
-            res += int(num1)*int(num2)
+    input = input.split("don't()")
+    res = p1.__original(input[0]) 
+    for inp in input:
+        curInp = inp.split("do()", 1)
+        res += p1.__original(curInp[1]) if len(curInp) == 2 else 0
     return res
  
 
