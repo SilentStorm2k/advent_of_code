@@ -52,10 +52,8 @@ def evaluateMask (grid, i, j, mask):
         for c in range(len(mask[0])):
             if mask[r][c] == '.':
                 continue
-            if not (0 <= i+r < m and 0 <= j+c < n):
+            if not (0 <= i+r < m and 0 <= j+c < n) or mask[r][c] != grid[i+r][j+c]:
                 return 0 
-            if mask[r][c] != grid[i+r][j+c]:
-                return 0
     return 1
     
 def main():
