@@ -1,8 +1,5 @@
 import functools
 import time
-import re
-from collections import defaultdict, deque
-import heapq
 
 def execute(func):
     def wrapper(*args):   
@@ -15,53 +12,28 @@ def execute(func):
 
 
 @execute
-def p1(input):
-    rules, order = input.split('\n\n')
-    rules = rules.split('\n')
-    order = order.split('\n')
-    # brute force solution
-    pairs = set()
+def p1(input, p2 = False):
     res = 0
-    for rule in rules:
-        n = rule.split('|')
-        pairs.add(tuple(n))
-    for cur in order:
-        cur = cur.split(',')
-        valid = True
-        for i in range(len(cur)):
-            for j  in range(i, len(cur)):
-                if (cur[j], cur[i]) in pairs:
-                   valid = False 
-        if valid:
-            res += int(cur[len(cur)//2])          
-    return res
-        
-@execute
-def p2(input):
-    pairs, order = input.split('\n\n')
-    pairs = pairs.split('\n')
-    order = order.split('\n')
-    # brute force solution
-    rules = set()
-    res = 0
+    pairs, orders = input.split('\n\n')
+    rules = set([tuple(pair.split('|')) for pair in pairs.split('\n')])
+    orders = [order.split(',') for order in orders.split('\n')]
     def custom_comparator(x, y):
         if (x, y) in rules:
             return -1
-        elif (y, x) in rules:
+        if (y, x) in rules:
             return 1
-        else:
-            return 0
-
-    for pair in pairs:
-        pair = pair.split("|")
-        rules.add(tuple(pair))
-    for update in order:
-        update = update.split(',')
-        sortedUpdate = sorted(update, key=functools.cmp_to_key(custom_comparator)) 
-        if update != sortedUpdate:
-            res += int(sortedUpdate[len(update)//2])
- 
+        return 0
+    for order in orders:
+        sortedOrder = sorted(order, key=functools.cmp_to_key(custom_comparator)) 
+        if not p2   and order == sortedOrder:
+            res += int(sortedOrder[len(sortedOrder)//2])
+        if     p2   and order != sortedOrder:
+            res += int(sortedOrder[len(sortedOrder)//2])
     return res 
+        
+@execute
+def p2(input):
+    return p1.__original(input, p2=True)
  
 
 def main():
