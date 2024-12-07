@@ -1,3 +1,6 @@
 *.txt
 **/puzzle_input/
 /**/day\ [0-9]*/
+secrets.json
+venv/
+env/
