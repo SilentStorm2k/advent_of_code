@@ -14,47 +14,31 @@ def execute(func):
 
 
 @execute
-def p1(input):
+def p1(input, p2 = False):
     input = input.split('\n')
     res = 0
     for line in input:
         val, nums = line.split(':')
         val = int(val)
         nums = [int(n) for n in nums.split(' ')[1:]]
-        l = [nums[0]]
+        possibilities = [nums[0]]
         for i in range(1, len(nums)):
-            lPrime = set() 
-            for num in l:
-                lPrime.add(num+nums[i])
-                lPrime.add(num*nums[i])
-            if i == len(nums)-1:
-                l = lPrime
+            resAfterOperation = set() 
+            for num in possibilities:
+                resAfterOperation.add(num+nums[i])
+                resAfterOperation.add(num*nums[i])
+                if p2:
+                    resAfterOperation.add(int(str(num)+str(nums[i])))
+            if i == len(nums)-1: 
+                possibilities = resAfterOperation
             else:
-                l = list(lPrime)
-        res += val if val in l else 0
+                possibilities = list(resAfterOperation)
+        res += val if val in possibilities else 0
     return res 
                  
 @execute
 def p2(input):
-    input = input.split('\n')
-    res = 0
-    for line in input:
-        val, nums = line.split(':')
-        val = int(val)
-        nums = [int(n) for n in nums.split(' ')[1:]]
-        l = [nums[0]]
-        for i in range(1, len(nums)):
-            lPrime = set() 
-            for num in l:
-                lPrime.add(num+nums[i])
-                lPrime.add(num*nums[i])
-                lPrime.add(int(str(num)+str(nums[i])))
-            if i == len(nums)-1:
-                l = lPrime
-            else:
-                l = list(lPrime)
-        res += val if val in l else 0
-    return res 
+    return p1.__original(input, True)
 
 
 def main():
