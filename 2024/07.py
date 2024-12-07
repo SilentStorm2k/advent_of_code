@@ -21,18 +21,20 @@ def p1(input, p2 = False):
         val, nums = line.split(':')
         val = int(val)
         nums = [int(n) for n in nums.split(' ')[1:]]
-        possibilities = [nums[0]]
+        possibilities = {nums[0]}
         for i in range(1, len(nums)):
             resAfterOperation = set() 
-            for num in possibilities:
-                resAfterOperation.add(num+nums[i])
-                resAfterOperation.add(num*nums[i])
-                if p2:
-                    resAfterOperation.add(int(str(num)+str(nums[i])))
-            if i == len(nums)-1: 
-                possibilities = resAfterOperation
-            else:
-                possibilities = list(resAfterOperation)
+            for num in list(possibilities):
+                add = num+nums[i]
+                mul = num*nums[i] 
+                cat = int(str(num)+str(nums[i]))
+                if add <= val:
+                    resAfterOperation.add(add)
+                if mul <= val:
+                    resAfterOperation.add(mul)
+                if cat <= val and p2:
+                    resAfterOperation.add(cat)
+            possibilities = resAfterOperation
         res += val if val in possibilities else 0
     return res 
                  
