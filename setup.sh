@@ -2,7 +2,9 @@
 
 # Check if two arguments are provided
 if [ $# -ne 2 ]; then
-  echo "Usage: $0 <year 20XX> <day 01,..,25>"
+  echo "Usage: $0 <year> <day>"
+  echo "  <year>: The year for the Advent of Code challenge (e.g., 2023)"
+  echo "  <day>: The day of the challenge (e.g., 01, 02, ..., 25)"
   exit 1
 fi
 
