@@ -1,6 +1,6 @@
 import time
 import re
-from collections import defaultdict, deque
+from collections import OrderedDict, defaultdict, deque
 import heapq
 
 def execute(func):
@@ -31,6 +31,7 @@ def p1(input):
         if end <= i:
             break
         if s[i] == '.':
+            # swapping with earliest free space
             s[i], s[end] = s[end], s[i]
     
     res = 0
@@ -42,51 +43,38 @@ def p1(input):
                  
 @execute
 def p2(input):
-    files, gaps = [], []
+    files = defaultdict(tuple) # each element is of #fileNumber : (#fileLength, #startIdx)
+    gaps  = [] # each element is of (#gapLength,  #gapStartIdx)
     curIdx = 0
+    lastFile = 0
     for i in range(len(input)):
         if i%2==0:
-            files.append((int(input[i]), curIdx, i//2))
+            files[i//2] = (int(input[i]), curIdx)
+            lastFile = i//2
         else:
             gaps.append((int(input[i]), curIdx))
         curIdx += int(input[i])
     
-    for i in range(len(files)-1,-1,-1):
-        fLen, fIdx, c = files[i]
+    for fNum in range(lastFile, -1, -1):
+        fLen, fIdx = files[fNum]
         gLen, gIdx = gaps[0]
         for j in range(len(gaps)):
             gLen, gIdx = gaps[j]
             if gIdx > fIdx:
+                # gap appearing after fileLocation (i.e cant move it upwards)
                 break
             if gLen >= fLen: 
-                files.append((fLen, gIdx, c))
-                # res += i*fLen*(2*gIdx+fLen-1)/2
+                # moving file forward 
+                files[fNum] = (fLen, gIdx)
                 gaps[j] = (gLen-fLen, gIdx+fLen)
-                gaps.append((fLen, fIdx))
                 break
-
-    s = []
-    for i in range(len(input)):
-        if i%2==0:
-            for j in range(int(input[i])):
-                s.append(i//2)
-        else:
-            for j in range(int(input[i])):
-                s.append('.')
-     
-    for l, idx, cost in files:
-        for j in range(l):
-            s[idx+j] = cost
-    for l, idx in gaps:
-        for j in range(l):
-            s[idx+j] = '.'
-    s = [str(ele) for ele in s]
-    return getScore(s)
+    return getScore(files)
  
-def getScore (s):
+def getScore(files):
     res = 0
-    for i in range(len(s)):
-        res += i*int(s[i]) if s[i] != '.' else 0
+    for fNum, fVal in files.items():
+        fLen, fIdx = fVal
+        res += fNum*fLen*(fIdx+fIdx+fLen-1)//2
     return res
 
 def main():
