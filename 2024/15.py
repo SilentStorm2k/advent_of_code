@@ -23,7 +23,6 @@ def p1(input):
         '^': (-1,0),
         'v': (1,0),
     }
-    frames = []
     pos, instructions = input.split('\n\n')
     grid = []
     start = ()
@@ -31,28 +30,9 @@ def p1(input):
         grid.append(list(row))
         if '@' in row:
             start = (i, row.index('@'))
-    instructions = instructions.replace('\n', '')
-    def move ( direction ):
-        nonlocal start, grid
-        di, dj = dir[direction]
-        si, sj = start
-        i, j = start
-        moved = False
-        while grid[i+di][j+dj] != '#' and grid[i+di][j+dj] != '.':
-            i += di
-            j += dj
-        while grid[i+di][j+dj] == '.' and not (i+di == si and j+dj == sj):
-            grid[i][j], grid[i+di][j+dj] = grid[i+di][j+dj], grid[i][j]
-            moved = True
-            i -= di
-            j -= dj
-        if moved:
-            start = (si+di, sj+dj)
-            
 
-    for d in instructions:
-        move (d)
-        # frames.append(toString(grid))
+    for d in instructions.replace('\n', ''):
+        start = move(grid, dir, start, d)
     
     res = 0
     for i in range(len(grid)):
@@ -60,18 +40,6 @@ def p1(input):
             if grid[i][j] == 'O':
                 res += 100*i + j
     
-    # def update_plot(i, ax, frames):
-    #     # Add text to display the frame number
-    #     ax.clear()
-    #     ax.text(0.5, 0.5, frames[i], ha='center', va='center', fontfamily = 'monospace')
-
-    # print("Done")
-    # fig, ax = plt.subplots()
-    # ani = animation.FuncAnimation(fig, update_plot, frames=len(frames), fargs=(ax, frames), interval=10)
-    # ani.save('2024/15_visualization.webm', writer='ffmpeg', codec='libvpx', bitrate=1000000)
-    # plt.show()
-    #
-                
     return res 
                  
 @execute
@@ -90,39 +58,9 @@ def p2(input):
         grid.append(list(row))
         if '@' in row:
             start = (i, row.index('@'))
-    instructions = instructions.replace('\n', '')
-    def move ( direction ):
-        nonlocal start, grid
-        di, dj = dir[direction]
-        q = deque(tuple())
-        q.append(start)
-        seen = set()
-        while q:
-            ele = q.popleft()
-            ci, cj = ele
-            if (ci,cj) in seen:
-                continue
-            seen.add((ci,cj))
-            if grid[ci][cj] == '#':
-                return   
-            elif grid[ci][cj] == '.':
-                continue
-            elif grid[ci][cj] == ']':
-                q.append((ci, cj-1))    
-            elif grid[ci][cj] == '[':
-                q.append((ci, cj+1))
-            q.append((ci+di, cj+dj))
-        
-        for locs in sorted(list(seen), key=lambda x: -x[0] if di == 1 else x[0] if di == -1 else -x[1] if dj == 1 else x[1]):
-            ci, cj = locs
-            if grid[ci][cj] == '.':
-                continue
-            grid[ci][cj], grid[ci+di][cj+dj] = grid[ci+di][cj+dj], grid[ci][cj]
             
-        start = (start[0]+di, start[1]+dj)
-            
-    for d in instructions:
-        move (d)
+    for d in instructions.replace('\n', ''):
+        start = move (grid, dir, start, d)
     
     res = 0
     for i in range(len(grid)):
@@ -133,6 +71,41 @@ def p2(input):
     # print(toString(grid))
     return res 
 
+
+def move (grid, dir, start, direction):
+    di, dj = dir[direction]
+    q = deque()
+    q.append(start)
+    seen = set()
+    while q:
+        ele = q.popleft()
+        ci, cj = ele
+        if (ci,cj) in seen:
+            # literally only for preventing infinite adding of '[]' pairs
+            continue
+        seen.add((ci,cj))
+        if grid[ci][cj] == '#':
+            # cannot move any blocks as its blocked
+            return start  
+        elif grid[ci][cj] == '.':
+            continue
+        elif grid[ci][cj] == ']':
+            q.append((ci, cj-1))    
+        elif grid[ci][cj] == '[':
+            q.append((ci, cj+1))
+        # now add the subsequent block
+        q.append((ci+di, cj+dj))
+    
+    for locs in sorted(list(seen), key=lambda x: -x[0] if di == 1 else x[0] if di == -1 else -x[1] if dj == 1 else x[1]):
+        # iterating through the blocks back to front for clean swaps
+        # sorting maybe overkill, but I forgot to implement it with q so whateves
+        ci, cj = locs
+        if grid[ci][cj] != '.':
+            grid[ci][cj], grid[ci+di][cj+dj] = grid[ci+di][cj+dj], grid[ci][cj]
+        
+    # start has been moved (since we didnt encounter '#'), so return moved start
+    return (start[0]+di, start[1]+dj)
+  
 def toString (g):
     s = ""
     for row in g:
