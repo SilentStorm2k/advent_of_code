@@ -24,24 +24,6 @@ def p1(input, start=(0,0), end=(70,70), fallenBytes = 1024):
         fx, fy = incomingBytes[i].split(',')
         fx, fy = int(fx), int(fy)
         bytePos.add((fx,fy))
-
-        # while q:
-    #     length = len(q)
-    #     for _ in range(length):
-    #         x, y, seen = q.popleft()
-    #         seen.add((x,y))
-    #         if (x,y) == end:
-    #             print(toString(bytePos, seen, m, n))
-    #             return idx 
-    #         for dx, dy in dir:
-    #             nx, ny = x+dx, y+dy
-    #             if 0<=nx<=m and 0<=ny<=n and (nx,ny) not in bytePos and (nx, ny) not in seen:
-    #                 q.append((nx,ny,set(seen)))
-    #     # simulate falling by moving blocks down
-    #     # bytePos = {(key[0], key[1] + (1 if key[1]<value[1] else 0)): value for key, value in bytePos.items()}
-    #     idx += 1
-                        
-        
     return shortestPathCost(bytePos, end, m, n) 
                  
 @execute
@@ -57,24 +39,8 @@ def p2(input, start = (0,0), end = (70,70), shortcut = 0):
         bytePos.add((fx,fy))
         if shortestPathCost(bytePos, end, m, n) == -1 and i > shortcut:
             return f"{fx},{fy}"
-
-
     return -1 
  
-def toString(bytePos, seen, m, n):
-    s = ""
-    for i in range(m+1):
-            rows = ""
-            for j in range(n+1):
-                if (j,i) in seen:
-                    rows += 'O'
-                elif (j,i) in bytePos:
-                    rows += '#'
-                else:
-                    rows += '.'
-            s += rows + "\n"
-    return s
-
 def shortestPathCost (bytePos, end, m, n):
     # implement dijkstras
     heap = []
