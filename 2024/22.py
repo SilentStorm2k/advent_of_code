@@ -15,47 +15,62 @@ def execute(func):
 
 @execute
 def p1(input):
-    MOD = 16777216
-    cache = {}
-    def generateSecret (secret):
-        if secret in cache:
-            return cache[secret] 
-        key = secret
-        tmp = secret*64
-        secret = (secret ^ tmp) % MOD
-        tmp = secret//32
-        secret = (secret ^ tmp) % MOD
-        tmp = secret*2048
-        secret = (secret ^ tmp) % MOD
-        cache[key] = secret
-        return secret
-    
     res = 0
     for secret in input.split('\n'):
         secret = int(secret)
-        for i in range(2000):
-            secret = generateSecret(secret)
-        res += secret
-    print(len(cache))
-
+        res += generateSecrets(secret)[-1]
     return res 
                  
 @execute
 def p2(input):
-    return None
+    allSeq = defaultdict(int) 
+    for secret in input.split('\n'):
+        secretList = generateSecrets(int(secret))
+        secretList = [ele%10 for ele in secretList]
+        seq = generateSequences (secretList) 
+        for key, val in seq.items():
+            allSeq[key] += val
+    return max(allSeq.values())
     
- 
+def generateSecrets (secret, length = 2000):
+    secrets = [secret]
+    for _ in range(length):
+        secret = prune(mix(secret, secret*64))
+        secret = prune(mix(secret, secret//32))
+        secret = prune(mix(secret, secret*2048))
+        secrets.append(secret)
+    return secrets
 
+def prune (secret):
+    return secret % 16777216
+
+def mix (s1, s2):
+    return s1 ^ s2
+
+def generateSequences (secrets):
+    seq = defaultdict(int) 
+    start = tuple([secrets[j]-secrets[j-1] for j in range(1, 5)])
+    a, b, c, d = start
+    for i in range(5, len(secrets)):
+        a = b
+        b = c
+        c = d
+        d = secrets[i]-secrets[i-1]
+        curSeq = (a,b,c,d)
+        if curSeq not in seq:
+            seq[curSeq] = secrets[i]
+    return seq
 
 def main():
     # when called from ~/advent_of_code$
     input = open("2024/puzzle_input/22_input.txt", 'r').read()
     example = open("2024/puzzle_input/22_example.txt", 'r').read()
+    example2 = open("2024/puzzle_input/22_example2.txt", 'r').read()
     print("\nPart 1:")
     p1(example)
     p1(input)
     print("\nPart 2:")
-    p2(example)
+    p2(example2)
     p2(input)
 
 if __name__ == "__main__":
