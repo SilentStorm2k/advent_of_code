@@ -34,13 +34,23 @@ def p2(input):
     towels, patterns = input.split('\n\n')
     towels = [towel.strip() for towel in towels.split(',')]
     patterns = patterns.split('\n')
-    towels = frozenset(towels)
     res = 0
-    for i, pattern in enumerate(patterns):
-        # sentencesMade(pattern, towels, [], results, 0)
-        ans = canMakeSentence(pattern, towels, p2=True)
-        print(i, ans)
-        res += ans
+    cache = {}
+
+    def ways (towels, pattern):
+        if pattern in cache:
+            return cache[pattern]
+        ans = 0 
+        if not pattern:
+            ans = 1
+        for towel in towels:
+            if pattern.startswith(towel):
+                ans += ways(towels, pattern[len(towel):])
+        cache[pattern] = ans
+        return ans
+
+    for pattern in patterns:
+        res += ways(towels, pattern)
             
     return res 
  
