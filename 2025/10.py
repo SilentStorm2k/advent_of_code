@@ -1,3 +1,4 @@
+from pulp import *
 import time
 import re
 from collections import defaultdict, deque
@@ -77,7 +78,59 @@ def p1(input):
 
 @execute
 def p2(input):
-    return None
+
+    def bfs(buttons, finalState):
+        finalState = tuple(finalState)
+        startState = [0]*len(finalState)
+        q = deque([tuple(startState)])
+        depth = 0
+        seen = set()
+        while len(q):
+            for i in range(len(q)):
+                curState = q.popleft()
+                if curState == finalState:
+                    return depth
+                if curState in seen:
+                    continue
+                seen.add(curState)
+                for button in buttons:
+                    nxtState = list(curState)
+                    for idx in button:
+                        nxtState[idx] += 1
+                    q.append(tuple(nxtState))
+            depth += 1
+        return -1
+
+    minPresses = 0
+    machines = input.split('\n')
+    for idx, machine in enumerate(machines):
+        machine = machine.split(' ')
+        buttons, joltages = machine[1:-1], machine[-1]
+        buttons = [[int(i) for i in re.findall(r'\((.*)\)', button)
+                    [0].split(',')] for button in buttons]
+        joltages = [int(ele)
+                    for ele in re.findall(r'\{(.*)\}', joltages)[0].split(',')]
+        # minPresses += bfs(buttons, joltages)
+
+        prob = LpProblem("Machine button clicks", LpMinimize)
+        buttonPresses = [LpVariable(
+            f'bp{i}', lowBound=0, cat=LpInteger) for i in range(len(buttons))]
+        prob += lpSum(buttonPresses)
+
+        constraints = defaultdict(list)
+        for buttonIdx, button in enumerate(buttons):
+            for idx in button:
+                constraints[idx].append(buttonPresses[buttonIdx])
+
+        for idx, val in enumerate(joltages):
+            prob += lpSum(constraints[idx]) <= val
+            prob += lpSum(constraints[idx]) >= val
+
+        # for button in buttons:
+        prob.solve(PULP_CBC_CMD(msg=False))
+        minPresses += value(prob.objective)
+
+    return int(minPresses)
 
 
 def main():
