@@ -79,28 +79,6 @@ def p1(input):
 @execute
 def p2(input):
 
-    def bfs(buttons, finalState):
-        finalState = tuple(finalState)
-        startState = [0]*len(finalState)
-        q = deque([tuple(startState)])
-        depth = 0
-        seen = set()
-        while len(q):
-            for i in range(len(q)):
-                curState = q.popleft()
-                if curState == finalState:
-                    return depth
-                if curState in seen:
-                    continue
-                seen.add(curState)
-                for button in buttons:
-                    nxtState = list(curState)
-                    for idx in button:
-                        nxtState[idx] += 1
-                    q.append(tuple(nxtState))
-            depth += 1
-        return -1
-
     minPresses = 0
     machines = input.split('\n')
     for idx, machine in enumerate(machines):
@@ -110,7 +88,6 @@ def p2(input):
                     [0].split(',')] for button in buttons]
         joltages = [int(ele)
                     for ele in re.findall(r'\{(.*)\}', joltages)[0].split(',')]
-        # minPresses += bfs(buttons, joltages)
 
         prob = LpProblem("Machine button clicks", LpMinimize)
         buttonPresses = [LpVariable(
