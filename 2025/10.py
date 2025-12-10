@@ -1,0 +1,96 @@
+import time
+import re
+from collections import defaultdict, deque
+import heapq
+
+
+def execute(func):
+    def wrapper(*args):
+        t1 = time.time()
+        print(f'Answer for {func.__name__} : {func(*args)}')
+        t2 = time.time()
+        print(f'Executed in : {round(t2-t1, 5)}')
+    # if need to reuse p1 w/o decorator use : p1.__original(input)
+    wrapper.__original = func
+    return wrapper
+
+
+@execute
+def p1(input):
+    # create bitmask for final output, each button will be a bitmask
+    # we will do a multipoint bfs on buttons (optimization: dont press same button consequtively)
+    # when out current bits match final output bitmask, we return tree depth
+    def makeStateBitmask(state):
+        res = 0
+        N = len(state)
+        for idx, ele in enumerate(list(state)):
+            if ele == '#':
+                res |= 1 << N-idx-1
+        return res
+
+    def makeButtonBitmask(button, N):
+        res = 0
+        for ele in button:
+            res |= 1 << N-ele-1
+        return res
+
+    def bfs(finalState, buttons):
+        if finalState == 0:
+            return 0
+        depth = 1
+        q = deque([(button, [button]) for button in buttons])
+        seen = set()
+        while len(q) > 0:
+            for i in range(len(q)):
+                state, prevButton = q.popleft()
+                if state == finalState:
+                    return depth
+                if state in seen:
+                    continue
+                seen.add(state)
+                for button in buttons:
+                    if button != prevButton[-1]:
+                        newState = state ^ button
+                        prevButton.append(button)
+                        q.append((newState, list(prevButton)))
+                        prevButton.pop()
+            depth += 1
+        return -1
+
+    presses = 0
+    machines = input.split('\n')
+    for machine in machines:
+        machine = machine.split(' ')
+        finalState, buttons, joltages = machine[0], machine[1:-1], machine[-1]
+        finalState = re.findall(r'\[(.*)\]', finalState)[0]
+        buttons = [[int(i) for i in re.findall(r'\((.*)\)', button)[0].split(',')]
+                   for button in buttons]
+        joltages = [int(i) for i in re.findall(
+            r'\{(.*)\}', joltages)[0].split(',')]
+        N = len(finalState)
+        finalState = makeStateBitmask(finalState)
+        buttons = [makeButtonBitmask(button, N) for button in buttons]
+        presses += bfs(finalState, buttons)
+
+    return presses
+
+
+@execute
+def p2(input):
+    return None
+
+
+def main():
+    # when called from ~/advent_of_code$
+    input = open("2025/puzzle_input/10_input.txt", 'r').read()
+    example = open("2025/puzzle_input/10_example.txt", 'r').read()
+    print("\nPart 1:")
+    p1(example)
+    p1(input)
+    print("\nPart 2:")
+    p2(example)
+    p2(input)
+
+
+if __name__ == "__main__":
+    main()
